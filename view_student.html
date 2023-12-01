@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View</title>
+    <link rel="stylesheet" href="view_style.css">
+</head>
+<body>
+
+<h1>View Student</h1>
+<input type="text" id="student_id">
+<button onclick="get_student(this)">Get Student</button>
+
+<br>
+<table id="table" class="table">
+    <caption>STUDENTS LIST</caption>
+    <thead>
+    <th>Roll No</th>
+    <th>Name</th>
+    <th>Age</th>
+    <th>Department</th>
+    </thead>
+    <tbody id="tablebody">
+
+    </tbody>
+</table>
+<br>
+<button class="back_button" onclick="window.location.href='student_index.html'">Back</button>
+</body>
+
+<script>
+    window.onload = function () {
+        get_student(-1)
+    }
+    function get_student(id){
+        cleartable()
+        if (id == -1) {
+            var student_id = -1
+        }
+        else {
+            var student_id = document.getElementById('student_id').value
+        }
+
+        fetch("http://localhost:8000/get_student/"+ student_id)
+            .then((response)=>response.json())
+            .then((json) =>
+                {   if (json=== "Student not found")
+                {
+                    var table = document.getElementById('tablebody')
+                    var row = document.createElement("tr")
+                    var cell =  document.createElement("td")
+                    cell.textContent = "Student not found"
+                    row.appendChild(cell)
+                    table.appendChild(row)
+                }
+                else {
+                    if (Array.isArray(json))
+                    {
+                        json.forEach(obj => {
+                            var table = document.getElementById('tablebody')
+                            var row = document.createElement("tr")
+                            Object.values(obj).forEach((v) => {
+                                var cell = document.createElement("td")
+                                cell.textContent = v
+                                row.appendChild(cell)
+                            })
+                            table.appendChild(row)
+                        })
+                    }
+                    else
+                    {
+                        var table = document.getElementById('tablebody')
+                        var row = document.createElement("tr")
+                        Object.values(json).forEach((v) => {
+                            var cell = document.createElement("td")
+                            cell.textContent = v
+                            row.appendChild(cell)
+                        })
+                        table.appendChild(row)
+
+                    }
+                }
+                }
+            )
+
+    }
+
+    function cleartable(){
+        const parent = document.getElementById("tablebody")
+        while(parent.firstChild)
+            parent.removeChild(parent.firstChild)
+    }
+</script>
+<style>
+
+    table {
+        width: 300px;
+        border: 1px solid black;
+
+    }
+    th, td {
+        border: 1px solid black;
+        padding: 3px;
+
+    }
+    th {
+        background-color: aqua;
+    }
+    .table {
+        margin-top: 50px;
+        background-color: aliceblue;
+        border: 1px solid;
+        border-collapse: collapse;
+    }
+    caption {
+        color: red;
+        font-size: 20px;
+    }
+    input {
+        margin-top: 10px;
+    }
+    button {
+        background-color: cornflowerblue;
+        color: white;
+        padding: 5px;
+        border-radius: 10px;
+    }
+    .back_button {
+        margin-left: 80px;
+        background-color: crimson;
+        color: white;
+        padding: 5px;
+        border-radius: 10px;
+    }
+</style>
+</html>

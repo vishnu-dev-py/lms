@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Return Book</title>
+    <link rel="stylesheet" href="view_style.css">
+</head>
+<body>
+<div class="form_style">
+    <label for="issueid">Issue ID:</label>
+    <input type="text" id="issueid" name="issueid">
+    <label for="bid">Book ID:</label>
+    <input type="text" id="bid" name="bid">
+    <br>
+    <button onclick="return_book()">Return Book</button>
+    <button onclick="window.location.href='issue_index.html'" class="back_button">Back</button>
+
+    <br>
+    <table id="issue_table" class="table">
+    <caption>Issued Book List</caption>
+    <thead>
+    <th>Issue ID</th>
+    <th>Student ID</th>
+    <th>Book ID</th>
+    <th>Status</th>
+    </thead>
+    <tbody id="issue_tablebody">
+
+    </tbody>
+</table>
+</div>
+
+</body>
+<script>
+    window.onload = function () {
+        get_issued_books()
+        cleartable("issue_tablebody")
+    }
+    function get_issued_books(){
+        cleartable("issue_tablebody")
+
+
+        fetch("http://localhost:8000/get_issued_books")
+            .then((response)=>response.json())
+            .then((json) =>
+                {   if (json=== "Books not found")
+                {
+                    var table = document.getElementById('issue_tablebody')
+                    var row = document.createElement("tr")
+                    var cell =  document.createElement("td")
+                    cell.textContent = "Books not found"
+                    row.appendChild(cell)
+                    table.appendChild(row)
+                }
+                else {
+                    if (Array.isArray(json))
+                    {
+                        json.forEach(obj => {
+                            var table = document.getElementById('issue_tablebody')
+                            var row = document.createElement("tr")
+                            Object.values(obj).forEach((v) => {
+                                var cell = document.createElement("td")
+                                cell.textContent = v
+                                row.appendChild(cell)
+                            })
+                            table.appendChild(row)
+                        })
+                    }
+                    else
+                    {
+                        var table = document.getElementById('issue_tablebody')
+                        var row = document.createElement("tr")
+                        Object.values(json).forEach((v) => {
+                            var cell = document.createElement("td")
+                            cell.textContent = v
+                            row.appendChild(cell)
+                        })
+                        table.appendChild(row)
+
+                    }
+                }
+                }
+            )
+
+    }
+    function return_book() {
+        var issueid = document.getElementById("issueid").value
+        var bookid = document.getElementById("bid").value
+
+        fetch("http://localhost:8000/return_book/"+ issueid + '/' + bookid)
+        .then(response => response.json())
+        .then(json => {
+            console.log(json)
+            get_issued_books()
+        })
+    }
+    function cleartable(id){
+        const parent = document.getElementById(id)
+        while(parent.firstChild)
+            parent.removeChild(parent.firstChild)
+    }
+</script>
+</html>

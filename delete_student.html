@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="view_style.css">
+</head>
+<body>
+<h1>Delete Student</h1>
+<input type="text" id="student_id">
+<button onclick="delete_student()">Delete Student</button>
+<br>
+<table id="table" class="table">
+    <caption>STUDENTS LIST</caption>
+    <thead>
+    <th>Roll No</th>
+    <th>Name</th>
+    <th>Age</th>
+    <th>Department</th>
+    </thead>
+    <tbody id="tablebody">
+
+    </tbody>
+</table>
+<button onclick="window.location.href='student_index.html'" class="back_button">Back</button>
+</body>
+<script>
+    window.onload = function () {
+        get_student()
+    }
+    function delete_student(){
+        var student_id = document.getElementById('student_id').value
+        fetch("http://localhost:8000/delete_student/"+ student_id)
+            .then((response)=>response.json())
+            .then((json) =>
+                {
+                    console.log(json)
+                    get_student()
+                }
+            )
+
+    }
+
+    function get_student(){
+        cleartable()
+        var student_id = -1
+        fetch("http://localhost:8000/get_student/"+ student_id)
+            .then((response)=>response.json())
+            .then((json) =>
+                {   if (json=== "Student not found")
+                {
+                    var table = document.getElementById('tablebody')
+                    var row = document.createElement("tr")
+                    var cell =  document.createElement("td")
+                    cell.textContent = "Student not found"
+                    row.appendChild(cell)
+                    table.appendChild(row)
+                }
+                else {
+                    if (Array.isArray(json))
+                    {
+                        json.forEach(obj => {
+                            var table = document.getElementById('tablebody')
+                            var row = document.createElement("tr")
+                            Object.values(obj).forEach((v) => {
+                                var cell = document.createElement("td")
+                                cell.textContent = v
+                                row.appendChild(cell)
+                            })
+                            table.appendChild(row)
+                        })
+                    }
+                    else
+                    {
+                        var table = document.getElementById('tablebody')
+                        var row = document.createElement("tr")
+                        Object.values(json).forEach((v) => {
+                            var cell = document.createElement("td")
+                            cell.textContent = v
+                            row.appendChild(cell)
+                        })
+                        table.appendChild(row)
+                    }
+                }
+                }
+            )
+
+    }
+
+    function cleartable(){
+        const parent = document.getElementById("tablebody")
+        while(parent.firstChild)
+            parent.removeChild(parent.firstChild)
+    }
+</script>
+</html>

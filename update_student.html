@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="view_style.css">
+</head>
+<body>
+<h1>Update Student</h1>
+<label for="rollno">RollNo:</label>
+<input type="text" id="rollno" name="rollno" onchange="get_student_details()"><br>
+<label for="name">Name:</label>
+<input type="text" id="name" name="name"><br>
+<label for="age">Age:</label>
+<input type="text" id="age" name="age"><br>
+<label for="department">Department:</label>
+<input type="text" id="department" name="department"><br>
+<br>
+<button onclick="update_student()">Update Student</button>
+<br>
+<table id="table" class="table">
+    <caption>STUDENTS LIST</caption>
+    <thead>
+    <th>Roll No</th>
+    <th>Name</th>
+    <th>Age</th>
+    <th>Department</th>
+    </thead>
+    <tbody id="tablebody">
+
+    </tbody>
+</table>
+<button onclick="window.location.href='student_index.html'" class="back_button">Back</button>
+</body>
+<script>
+    window.onload = function () {
+        get_student(-1)
+    }
+    function dummy() {
+        alert("hover")
+    }
+    function get_student(id){
+        cleartable()
+        if (id == -1) {
+            var student_id = -1
+        }
+        else {
+            var student_id = document.getElementById('student_id').value
+        }
+
+        fetch("http://localhost:8000/get_student/"+ student_id)
+            .then((response)=>response.json())
+            .then((json) =>
+                {   if (json=== "Student not found")
+                {
+                    var table = document.getElementById('tablebody')
+                    var row = document.createElement("tr")
+                    var cell =  document.createElement("td")
+                    cell.textContent = "Student not found"
+                    row.appendChild(cell)
+                    table.appendChild(row)
+                }
+                else {
+                    if (Array.isArray(json))
+                    {
+                        json.forEach(obj => {
+                            var table = document.getElementById('tablebody')
+                            var row = document.createElement("tr")
+                            Object.values(obj).forEach((v) => {
+                                var cell = document.createElement("td")
+                                cell.textContent = v
+                                row.appendChild(cell)
+                            })
+                            table.appendChild(row)
+                        })
+                    }
+                    else
+                    {
+                        var table = document.getElementById('tablebody')
+                        var row = document.createElement("tr")
+                        Object.values(json).forEach((v) => {
+                            var cell = document.createElement("td")
+                            cell.textContent = v
+                            row.appendChild(cell)
+                        })
+                        table.appendChild(row)
+
+                    }
+                }
+                }
+            )
+
+    }
+
+    function cleartable(){
+        const parent = document.getElementById("tablebody")
+        while(parent.firstChild)
+            parent.removeChild(parent.firstChild)
+    }
+
+    function update_student(){
+        var roll_no = document.getElementById('rollno').value
+        var name = document.getElementById('name').value
+        var age = document.getElementById('age').value
+        var department = document.getElementById('department').value
+
+        var option = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                age: age,
+                department: department,
+                roll_no: roll_no
+            })
+        }
+
+
+
+        fetch('http://localhost:8000/update_student', option)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                get_student(-1)
+                clear_input()
+            })
+    }
+
+    function clear_input() {
+        document.getElementById('rollno').value = ""
+        document.getElementById('name').value = ""
+        document.getElementById('age').value = ""
+        document.getElementById('department').value = ""
+
+    }
+
+    function get_student_details(){
+        var student_id = document.getElementById('rollno').value
+        fetch("http://localhost:8000/get_student/"+ student_id)
+            .then((response)=>response.json())
+            .then((json) =>
+
+                {
+                    if (json !== "Student not found"){
+                    document.getElementById('name').value = json.name
+                    document.getElementById('age').value = json.age
+                    document.getElementById('department').value = json.department
+                    }
+
+                }
+            )
+
+    }
+</script>
+</html>

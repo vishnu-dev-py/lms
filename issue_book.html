@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Issue book</title>
+    <link rel="stylesheet" href="view_style.css">
+</head>
+<body>
+<div class="form_style">
+    <label for="sid">Student ID:</label>
+    <input type="text" id="sid" name="sid">
+    <label for="bid">Book ID:</label>
+    <input type="text" id="bid" name="bid">
+    <br>
+    <button onclick="issue()">Issue</button>
+    <button onclick="window.location.href='issue_index.html'" class="back_button">Back</button>
+
+    <br>
+    <table id="student_table" class="table">
+    <caption>STUDENTS LIST</caption>
+    <thead>
+    <th>Roll No</th>
+    <th>Name</th>
+    <th>Age</th>
+    <th>Department</th>
+    </thead>
+    <tbody id="student_tablebody">
+
+    </tbody>
+</table>
+    <table id="book_table" class="table">
+    <caption>BOOK LIST</caption>
+    <thead>
+    <th>BID</th>
+    <th>Book Name</th>
+    <th>Author</th>
+    <th>Genre</th>
+    <th>Availability</th>
+    </thead>
+    <tbody id="book_tablebody">
+
+    </tbody>
+</table>
+</div>
+
+</body>
+<script>
+    window.onload = function () {
+        get_student(-1)
+        get_books(-1)
+    }
+    function get_student(id){
+        cleartable("student_tablebody")
+        if (id == -1) {
+            var student_id = -1
+        }
+        else {
+            var student_id = document.getElementById('student_id').value
+        }
+
+        fetch("http://localhost:8000/get_student/"+ student_id)
+            .then((response)=>response.json())
+            .then((json) =>
+                {   if (json=== "Student not found")
+                {
+                    var table = document.getElementById('student_tablebody')
+                    var row = document.createElement("tr")
+                    var cell =  document.createElement("td")
+                    cell.textContent = "Student not found"
+                    row.appendChild(cell)
+                    table.appendChild(row)
+                }
+                else {
+                    if (Array.isArray(json))
+                    {
+                        json.forEach(obj => {
+                            var table = document.getElementById('student_tablebody')
+                            var row = document.createElement("tr")
+                            Object.values(obj).forEach((v) => {
+                                var cell = document.createElement("td")
+                                cell.textContent = v
+                                row.appendChild(cell)
+                            })
+                            table.appendChild(row)
+                        })
+                    }
+                    else
+                    {
+                        var table = document.getElementById('student_tablebody')
+                        var row = document.createElement("tr")
+                        Object.values(json).forEach((v) => {
+                            var cell = document.createElement("td")
+                            cell.textContent = v
+                            row.appendChild(cell)
+                        })
+                        table.appendChild(row)
+
+                    }
+                }
+                }
+            )
+
+    }
+    function get_books(id){
+          cleartable("book_tablebody")
+        if (id == -1) {
+            var book_id = -1
+        }
+        else {
+            var book_id = document.getElementById('book_id').value
+        }
+
+        fetch("http://localhost:8000/available_books")
+            .then((response)=>response.json())
+            .then((json) =>
+                {   if (json=== "NO Available Books")
+                {
+                    var table = document.getElementById('book_tablebody')
+                    var row = document.createElement("tr")
+                    var cell =  document.createElement("td")
+                    cell.textContent = "NO Available Books"
+                    row.appendChild(cell)
+                    table.appendChild(row)
+                }
+                else {
+                    if (Array.isArray(json))
+                    {
+                        json.forEach(obj => {
+                            var table = document.getElementById('book_tablebody')
+                            var row = document.createElement("tr")
+                            Object.values(obj).forEach((v) => {
+                                var cell = document.createElement("td")
+                                cell.textContent = v
+                                row.appendChild(cell)
+                            })
+                            table.appendChild(row)
+                        })
+                    }
+                    else
+                    {
+                        var table = document.getElementById('book_tablebody')
+                        var row = document.createElement("tr")
+                        Object.values(json).forEach((v) => {
+                            var cell = document.createElement("td")
+                            cell.textContent = v
+                            row.appendChild(cell)
+                        })
+                        table.appendChild(row)
+
+                    }
+                }
+                }
+            )
+
+    }
+    function cleartable(id){
+        const parent = document.getElementById(id)
+        while(parent.firstChild)
+            parent.removeChild(parent.firstChild)
+    }
+    function issue() {
+        var sid = document.getElementById("sid").value
+        var bid = document.getElementById("bid").value
+
+        fetch("http://localhost:8000/issue_book/"+ sid + '/' + bid)
+        .then(response => response.json())
+        .then(json => {
+            console.log(json)
+            get_books(-1)
+        })
+    }
+</script>
+</html>

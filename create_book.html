@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Student</title>
+    <link rel="stylesheet" href="view_style.css">
+</head>
+<body>
+
+<h1>Create a new Book</h1>
+<div class="form_style">
+    <label for="name">Book Name:</label>
+    <input type="text" id="name" name="name"><br>
+    <label for="author">Author:</label>
+    <input type="text" id="author" name="author"><br>
+    <label for="genre">Genre:</label>
+    <input type="text" id="genre" name="genre"><br>
+    <br>
+    <h4 id="result"></h4>
+    <button onclick="create_book()">Create Book</button>
+    <button onclick="window.location.href='book_index.html'" class="back_button">Back</button>
+</div>
+
+
+
+
+</body>
+<script>
+    function create_book(){
+    var name = document.getElementById('name').value
+    var author = document.getElementById('author').value
+    var genre = document.getElementById('genre').value
+
+
+
+    var option = {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+    bname: name,
+    author: author,
+    genre: genre
+    })
+    }
+
+
+
+    fetch('http://localhost:8000/create_book', option)
+    .then(response => response.json())
+    .then(data => {
+    console.log(data)
+        clear_input()
+        document.getElementById('result').innerHTML = data
+        setTimeout(()=>{
+            document.getElementById('result').innerHTML = ""
+        },3000)
+    })
+    }
+
+        function clear_input() {
+        document.getElementById('name').value = ""
+        document.getElementById('author').value = ""
+        document.getElementById('genre').value = ""
+
+    }
+</script>
+</html>

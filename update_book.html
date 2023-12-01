@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="view_style.css">
+</head>
+<body>
+<h1>Update Book</h1>
+<label for="bid">Book ID:</label>
+<input type="text" id="bid" name="bid" onchange="get_book_details()"><br>
+<label for="name">Name:</label>
+<input type="text" id="name" name="name"><br>
+<label for="author">Author:</label>
+<input type="text" id="author" name="author"><br>
+<label for="genre">Genre:</label>
+<input type="text" id="genre" name="genre"><br>
+<br>
+<button onclick="update_book()">Update Book</button>
+<br>
+<table id="table" class="table">
+    <caption>Book LIST</caption>
+    <thead>
+    <th>BID</th>
+    <th>Book Name</th>
+    <th>Author</th>
+    <th>Genre</th>
+    <th>Avaliability</th>
+    </thead>
+    <tbody id="tablebody">
+
+    </tbody>
+</table>
+<button onclick="window.location.href='book_index.html'" class="back_button">Back</button>
+</body>
+<script>
+    window.onload = function () {
+        get_books(-1)
+    }
+
+    function get_books(id){
+        cleartable()
+        if (id == -1) {
+            var bid = -1
+        }
+        else {
+            var bid = document.getElementById('bid').value
+        }
+
+        fetch("http://localhost:8000/get_book/"+ bid)
+            .then((response)=>response.json())
+            .then((json) =>
+                {   if (json=== "Book not found")
+                {
+                    var table = document.getElementById('tablebody')
+                    var row = document.createElement("tr")
+                    var cell =  document.createElement("td")
+                    cell.textContent = "Book not found"
+                    row.appendChild(cell)
+                    table.appendChild(row)
+                }
+                else {
+                    if (Array.isArray(json))
+                    {
+                        json.forEach(obj => {
+                            var table = document.getElementById('tablebody')
+                            var row = document.createElement("tr")
+                            Object.values(obj).forEach((v) => {
+                                var cell = document.createElement("td")
+                                cell.textContent = v
+                                row.appendChild(cell)
+                            })
+                            table.appendChild(row)
+                        })
+                    }
+                    else
+                    {
+                        var table = document.getElementById('tablebody')
+                        var row = document.createElement("tr")
+                        Object.values(json).forEach((v) => {
+                            var cell = document.createElement("td")
+                            cell.textContent = v
+                            row.appendChild(cell)
+                        })
+                        table.appendChild(row)
+
+                    }
+                }
+                }
+            )
+
+    }
+
+    function cleartable(){
+        const parent = document.getElementById("tablebody")
+        while(parent.firstChild)
+            parent.removeChild(parent.firstChild)
+    }
+
+    function update_book(){
+        var bid = document.getElementById('bid').value
+        var name = document.getElementById('name').value
+        var author = document.getElementById('author').value
+        var genre = document.getElementById('genre').value
+
+        var option = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                bid: bid,
+                name: name,
+                author: author,
+                genre: genre,
+            })
+        }
+
+
+
+        fetch('http://localhost:8000/update_book', option)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                get_books(-1)
+                clear_input()
+            })
+    }
+
+    function clear_input() {
+        document.getElementById('bid').value = ""
+        document.getElementById('name').value = ""
+        document.getElementById('author').value = ""
+        document.getElementById('genre').value = ""
+
+    }
+
+    function get_book_details(){
+        var bid = document.getElementById('bid').value
+        fetch("http://localhost:8000/get_book/"+ bid)
+            .then((response)=>response.json())
+            .then((json) =>
+
+                {
+                    if (json !== "Book not found"){
+                        document.getElementById('bid').value = json.bid
+                    document.getElementById('name').value = json.bname
+                    document.getElementById('author').value = json.author
+                    document.getElementById('genre').value = json.genre
+                    }
+
+                }
+            )
+
+    }
+</script>
+</html>
+
